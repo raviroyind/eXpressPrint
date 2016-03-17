@@ -10,9 +10,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
+using DevExpress.XtraSplashScreen;
 
 
 namespace eXpressPrint
@@ -48,7 +50,19 @@ namespace eXpressPrint
         }
         private void PrintForm_Load(object sender, EventArgs e)
         {
+            SplashScreenManager.ShowForm(ActiveForm, typeof(WaitForm1), false, false, false);
+            SplashScreenManager.Default.SetWaitFormDescription("Printing...");
+            
+            Thread.Sleep(5000);
+
             var inif = new INIFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\eXpressPrint\\config.ini");
+
+            if (!string.IsNullOrEmpty(inif.Read("PRINT_OPT", "AUTO")))
+            {
+                if (inif.Read("PRINT_OPT", "AUTO").Equals("Y"))
+                    PrintAndReturn(_PrintImage);
+            }
+
 
             if (!string.IsNullOrEmpty(inif.Read("PRINT_SET", "COPIES")))
             {
@@ -79,6 +93,16 @@ namespace eXpressPrint
             mainForm.Show();
         }
 
+        public void PrintAndReturn(Image imgImage)
+        { 
+            Print(_PrintImage);
+            Hide();
+            SplashScreenManager.CloseForm(false);
+
+            var mainForm = new MainForm();
+            mainForm.Show();
+            return;
+        }
         public void Print(Image imgImage)
         {
             // Prevents execution of below statements if filename is not selected.
@@ -87,7 +111,6 @@ namespace eXpressPrint
 
             try
             {
-                
                 var pd = new PrintDocument();
 
                 //Disable the printing document pop-up dialog shown during printing.
@@ -121,15 +144,14 @@ namespace eXpressPrint
                     m.X = (int)((((System.Drawing.Printing.PrintDocument)(sndr)).DefaultPageSettings.PaperSize.Width - m.Width) / 2);
                     args.Graphics.DrawImage(i, m);
                 };
-
-
+                 
                 pd.PrintController = new StandardPrintController();
                 pd.Print();
                 
             }
             catch (Exception ex)
             {
-                // ignored
+                XtraMessageBox.Show(ex.Message,"Printer error");
             }
         }
 

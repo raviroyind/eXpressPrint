@@ -53,6 +53,7 @@
             this.labelControl7 = new DevExpress.XtraEditors.LabelControl();
             this.checkedListBoxNumOfOptions = new DevExpress.XtraEditors.CheckedListBoxControl();
             this.labelControl8 = new DevExpress.XtraEditors.LabelControl();
+            this.chkAutoPrint = new DevExpress.XtraEditors.CheckEdit();
             ((System.ComponentModel.ISupportInitialize)(this.groupDrop)).BeginInit();
             this.groupDrop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtDropBoxFolder.Properties)).BeginInit();
@@ -63,6 +64,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxBackground)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkNoImage.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.checkedListBoxNumOfOptions)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkAutoPrint.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // labelControl1
@@ -271,7 +273,6 @@
             this.checkedListBoxNumOfOptions.Location = new System.Drawing.Point(453, 86);
             this.checkedListBoxNumOfOptions.LookAndFeel.SkinName = "Metropolis";
             this.checkedListBoxNumOfOptions.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.UltraFlat;
-            this.checkedListBoxNumOfOptions.LookAndFeel.TouchUI = true;
             this.checkedListBoxNumOfOptions.Name = "checkedListBoxNumOfOptions";
             this.checkedListBoxNumOfOptions.SelectionMode = System.Windows.Forms.SelectionMode.MultiSimple;
             this.checkedListBoxNumOfOptions.Size = new System.Drawing.Size(173, 206);
@@ -286,11 +287,20 @@
             this.labelControl8.TabIndex = 21;
             this.labelControl8.Text = "Settings";
             // 
+            // chkAutoPrint
+            // 
+            this.chkAutoPrint.Location = new System.Drawing.Point(12, 223);
+            this.chkAutoPrint.Name = "chkAutoPrint";
+            this.chkAutoPrint.Properties.Caption = "Auto Print";
+            this.chkAutoPrint.Size = new System.Drawing.Size(75, 20);
+            this.chkAutoPrint.TabIndex = 23;
+            // 
             // SettingsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(120F, 120F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(722, 566);
+            this.Controls.Add(this.chkAutoPrint);
             this.Controls.Add(this.labelControl8);
             this.Controls.Add(this.checkedListBoxNumOfOptions);
             this.Controls.Add(this.labelControl7);
@@ -322,6 +332,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxBackground)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkNoImage.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.checkedListBoxNumOfOptions)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkAutoPrint.Properties)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -354,5 +365,6 @@
         private DevExpress.XtraEditors.LabelControl labelControl7;
         private DevExpress.XtraEditors.CheckedListBoxControl checkedListBoxNumOfOptions;
         private DevExpress.XtraEditors.LabelControl labelControl8;
+        private DevExpress.XtraEditors.CheckEdit chkAutoPrint;
     }
 }

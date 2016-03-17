@@ -34,6 +34,7 @@
             this.btnSearch = new DevExpress.XtraEditors.SimpleButton();
             this.btnSettings = new DevExpress.XtraEditors.SimpleButton();
             this.txtPhotoId = new DevExpress.XtraEditors.TextEdit();
+            this.lblMessage = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             this.splitContainerControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtPhotoId.Properties)).BeginInit();
@@ -50,6 +51,7 @@
             this.splitContainerControl1.Location = new System.Drawing.Point(0, 0);
             this.splitContainerControl1.Name = "splitContainerControl1";
             this.splitContainerControl1.Panel1.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.UltraFlat;
+            this.splitContainerControl1.Panel1.Controls.Add(this.lblMessage);
             this.splitContainerControl1.Panel1.Controls.Add(this.btnClose);
             this.splitContainerControl1.Panel1.Controls.Add(this.btnSearch);
             this.splitContainerControl1.Panel1.Controls.Add(this.btnSettings);
@@ -96,7 +98,6 @@
             this.btnSettings.ImageLocation = DevExpress.XtraEditors.ImageLocation.MiddleCenter;
             this.btnSettings.Location = new System.Drawing.Point(1116, 9);
             this.btnSettings.LookAndFeel.SkinName = "DevExpress Dark Style";
-            this.btnSettings.LookAndFeel.TouchUI = true;
             this.btnSettings.Name = "btnSettings";
             this.btnSettings.Size = new System.Drawing.Size(41, 44);
             this.btnSettings.TabIndex = 3;
@@ -111,9 +112,19 @@
             this.txtPhotoId.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 18F);
             this.txtPhotoId.Properties.Appearance.Options.UseFont = true;
             this.txtPhotoId.Properties.LookAndFeel.SkinName = "VS2010";
-            this.txtPhotoId.Properties.LookAndFeel.TouchUI = true;
             this.txtPhotoId.Size = new System.Drawing.Size(263, 42);
             this.txtPhotoId.TabIndex = 0;
+            // 
+            // lblMessage
+            // 
+            this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblMessage.Appearance.Font = new System.Drawing.Font("Tahoma", 11F);
+            this.lblMessage.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.lblMessage.Location = new System.Drawing.Point(472, 23);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(0, 22);
+            this.lblMessage.TabIndex = 5;
             // 
             // MainForm
             // 
@@ -126,7 +137,6 @@
             this.IsMdiContainer = true;
             this.LookAndFeel.SkinName = "Springtime";
             this.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.UltraFlat;
-            this.LookAndFeel.TouchUI = true;
             this.LookAndFeel.UseDefaultLookAndFeel = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -148,6 +158,6 @@
         private DevExpress.XtraEditors.SimpleButton btnSettings;
         private DevExpress.XtraEditors.SimpleButton btnSearch;
         private DevExpress.XtraEditors.SimpleButton btnClose;
-
+        private DevExpress.XtraEditors.LabelControl lblMessage;
     }
 }

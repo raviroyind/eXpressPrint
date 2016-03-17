@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -216,8 +217,12 @@ namespace eXpressPrint
                 numberOfCopies = numberOfCopies.Substring(0, numberOfCopies.Length - 1);
 
             inif.Write("PRINT_SET", "COPIES",numberOfCopies);
-            
 
+            if (chkAutoPrint.Checked)
+                inif.Write("PRINT_OPT", "AUTO", "Y");
+            else
+                inif.Write("PRINT_OPT", "AUTO", "N");
+            
             XtraMessageBox.Show("Saved, please restart the application.", "Settings Saved", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 

@@ -1,27 +1,23 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Printing;
 using System.IO;
-using System.Text;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using DevExpress.Data.PLinq.Helpers;
 using DevExpress.XtraEditors;
 using DevExpress.XtraSplashScreen;
 using Dropbox.Api;
+using System.Management;
+using eXpressPrint.Classes;
 
 namespace eXpressPrint
 {
     public partial class MainForm :  XtraForm
     {
         #region Properties...
+         
         public enum SearchMode
         {
             DropBox,
@@ -159,6 +155,7 @@ namespace eXpressPrint
 
                     PrintImage = image;
                 }
+ 
             }
 
             SplashScreenManager.CloseForm(false);
@@ -175,7 +172,7 @@ namespace eXpressPrint
         
         private void MainForm_Load(object sender, EventArgs e)
         {
-            formState.Maximize(this);
+            //formState.Maximize(this);
         }
          
         private void btnSettings_Click(object sender, EventArgs e)
@@ -191,6 +188,8 @@ namespace eXpressPrint
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
+            UpdateLabel("");
+
             if (string.IsNullOrEmpty(Convert.ToString(txtPhotoId.EditValue)))
             {
                 MessageBox.Show(this, "Please enter a valid photo id.","Invalid Search", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -220,13 +219,31 @@ namespace eXpressPrint
 
             if (PrintImage != null)
             {
-                var frmPrintForm = new PrintForm(PrintImage);
-                frmPrintForm.Show();
-                this.Hide();
+                var inif = new INIFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\eXpressPrint\\config.ini");
+                var mode = inif.Read("PRINT_OPT", "AUTO");
+
+                if (mode.Equals("N"))
+                {
+                    var frmPrintForm = new PrintForm(PrintImage);
+                    frmPrintForm.Show();
+                    this.Hide();
+                }
+                else
+                {
+                    Print(PrintImage);
+                }
             }
             else
             {
-                MessageBox.Show(this, "Sorry no image found for Id - \"" + txtPhotoId.EditValue + "\"", "Search Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                XtraMessageBox.Show(
+                      "We are unable to find your photo at this time."+Environment.NewLine+
+                       "Please email your event name and photo code to info@getphocial.com","Not Found", 
+                      MessageBoxButtons.OK, 
+                      MessageBoxIcon.Asterisk);
+
+                txtPhotoId.EditValue = null;
+                txtPhotoId.Focus();
+                //MessageBox.Show(this, "Sorry no image found for Id - \"" + txtPhotoId.EditValue + "\"", "Search Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -237,5 +254,126 @@ namespace eXpressPrint
             txtPhotoId.Select();
             txtPhotoId.Focus();
         }
+        
+
+        #region Print...
+        public void Print(Image imgImage)
+        {
+            if (PrinterUtility.GetDefaultPrinters().Cast<ManagementBaseObject>().Any(printer => !printer.IsOnline()))
+            {
+                XtraMessageBox.Show(
+                    "Printer is Offline or malfunctioned","Printer status",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Asterisk);
+
+                return;
+            }
+
+            // Prevents execution of below statements if filename is not selected.
+            if (imgImage == null)
+            return;
+            
+            try
+            {
+                UpdateLabel("Image "+ txtPhotoId.EditValue +".jpg sent to printer.");
+                UpdatePhotoId();
+                this.BringToFront();
+                txtPhotoId.Focus();
+                 
+                Image printimg = imgImage;
+
+                if (printimg.Width > printimg.Height)
+                   printimg= RotateImage(printimg);
+
+                var pd = new PrintDocument();
+
+                //Disable the printing document pop-up dialog shown during printing.
+                PrintController printController = new StandardPrintController();
+                pd.PrintController = printController;
+
+
+                pd.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+                pd.PrinterSettings.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+
+                pd.PrintPage += (sndr, args) =>
+                {
+                    Image i = printimg;
+
+                    //Adjust the size of the image to the page to print the full image without loosing any part of the image.
+                    Rectangle m = args.MarginBounds;
+
+                    //Logic below maintains Aspect Ratio.
+                    if ((double)i.Width / (double)i.Height > (double)m.Width / (double)m.Height) // image is wider
+                    {
+                        m.Height = (int)((double)i.Height / (double)i.Width * (double)m.Width);
+                    }
+                    else
+                    {
+                        m.Width = (int)((double)i.Width / (double)i.Height * (double)m.Height);
+                    }
+                    //Calculating optimal orientation.
+                    
+                    if(m.Width > m.Height)
+                        pd.DefaultPageSettings.Landscape = true;
+
+                    //Putting image in center of page.
+                    m.Y = (int)((((System.Drawing.Printing.PrintDocument)(sndr)).DefaultPageSettings.PaperSize.Height - m.Height) / 2);
+                    m.X = (int)((((System.Drawing.Printing.PrintDocument)(sndr)).DefaultPageSettings.PaperSize.Width - m.Width) / 2);
+                    args.Graphics.DrawImage(i, m);
+                };
+
+                pd.PrintController = new StandardPrintController();
+                pd.Print();
+                  
+            }
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show(ex.Message, "Printer error");
+            }
+        }
+
+
+        private static Image RotateImage(Image imgIn)
+        {
+            Image img = imgIn;
+            //create an object that we can use to examine an image file
+            //rotate the picture by 90 degrees and re-save the picture as a Jpeg
+            img.RotateFlip(RotateFlipType.Rotate90FlipNone);
+
+            return img;
+        }
+
+        public static Stream ToStream(Image image, ImageFormat formaw)
+        {
+            var stream = new System.IO.MemoryStream();
+            image.Save(stream, formaw);
+            stream.Position = 0;
+            return stream;
+        }
+
+        private void UpdateLabel(string message)
+        {
+            if (this.lblMessage.InvokeRequired)
+            {
+                this.lblMessage.BeginInvoke((MethodInvoker)delegate () { this.lblMessage.Text = message; });
+            }
+            else
+            {
+                this.lblMessage.Text = message;
+            }
+        }
+         
+        private void UpdatePhotoId()
+        {
+            if (this.txtPhotoId.InvokeRequired)
+            {
+                this.txtPhotoId.BeginInvoke((MethodInvoker)delegate () { this.txtPhotoId.EditValue = null; });
+            }
+            else
+            {
+                this.txtPhotoId.EditValue = null;
+            }
+        }
+        #endregion Print...
     }
 }
