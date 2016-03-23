@@ -162,7 +162,7 @@ namespace eXpressPrint
         }
 
         private async Task Download(DropboxClient dbx, string folder, string file)
-        {
+        { 
             var imx = await dbx.Files.DownloadAsync(folder + file);
         }
 
@@ -172,7 +172,7 @@ namespace eXpressPrint
         
         private void MainForm_Load(object sender, EventArgs e)
         {
-            //formState.Maximize(this);
+            formState.Maximize(this);
         }
          
         private void btnSettings_Click(object sender, EventArgs e)
@@ -192,7 +192,10 @@ namespace eXpressPrint
 
             if (string.IsNullOrEmpty(Convert.ToString(txtPhotoId.EditValue)))
             {
-                MessageBox.Show(this, "Please enter a valid photo id.","Invalid Search", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                XtraMessageBox.Show(this, "Please enter a valid photo id.", "Invalid Search",
+                     MessageBoxButtons.OK,
+                     MessageBoxIcon.Asterisk);
+                //MessageBox.Show(this, "Please enter a valid photo id.","Invalid Search", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtPhotoId.Select();
                 return;
             }
@@ -224,7 +227,7 @@ namespace eXpressPrint
 
                 if (mode.Equals("N"))
                 {
-                    var frmPrintForm = new PrintForm(PrintImage);
+                    var frmPrintForm = new PrintForm(PrintImage,txtPhotoId.EditValue.ToString());
                     frmPrintForm.Show();
                     this.Hide();
                 }
@@ -235,7 +238,7 @@ namespace eXpressPrint
             }
             else
             {
-                XtraMessageBox.Show(
+                XtraMessageBox.Show(this,
                       "We are unable to find your photo at this time."+Environment.NewLine+
                        "Please email your event name and photo code to info@getphocial.com","Not Found", 
                       MessageBoxButtons.OK, 
@@ -254,15 +257,76 @@ namespace eXpressPrint
             txtPhotoId.Select();
             txtPhotoId.Focus();
         }
-        
+
 
         #region Print...
+
+        //private void Print(Image img)
+        //{
+
+        //    if (PrinterUtility.GetDefaultPrinters().Cast<ManagementBaseObject>().Any(printer => !printer.IsOnline()))
+        //    {
+        //        XtraMessageBox.Show(this,
+        //            "Printer is Offline or malfunctioned", "Printer status",
+        //            MessageBoxButtons.OK,
+        //            MessageBoxIcon.Asterisk);
+
+        //        return;
+        //    }
+
+        //    if (img == null)
+        //        return;
+
+
+        //    UpdateLabel("Image " + txtPhotoId.EditValue + ".jpg sent to printer.");
+        //    UpdatePhotoId();
+        //    this.BringToFront();
+        //    this.Focus();
+        //    //formState.Maximize(this);
+        //    txtPhotoId.Focus();
+
+        //    PrintDocument pd = new PrintDocument();
+
+        //    //Disable the printing document pop-up dialog shown during printing.
+        //    PrintController printController = new StandardPrintController();
+        //    pd.PrintController = printController;
+
+        //    //pd.DefaultPageSettings.Landscape = img.Width > img.Height;
+        //    //pd.OriginAtMargins = false;
+
+        //    pd.PrintPage += (sndr, args) => {
+        //        System.Drawing.Image i = img;
+
+        //        //Adjust the size of the image to the page to print the full image without loosing any part of the image.
+        //        System.Drawing.Rectangle m = args.MarginBounds;
+        //        Rectangle t = args.MarginBounds;
+
+        //        //PrintDialog myPrintDialog1 = new PrintDialog();
+
+        //        //Logic below maintains Aspect Ratio.
+        //        double cmToUnits = 100 / 2.54;
+        //        m.Width = (Int32)(m.Width * cmToUnits);
+        //        m.Height = (Int32)(m.Height * cmToUnits);
+
+        //        pd.DefaultPageSettings.Landscape = m.Width > m.Height;
+        //        //Putting image in center of page.
+        //        m.Y = (int)((((System.Drawing.Printing.PrintDocument)(sndr)).DefaultPageSettings.PaperSize.Width - m.Height) / 2);
+        //        m.X = (int)((((System.Drawing.Printing.PrintDocument)(sndr)).DefaultPageSettings.PaperSize.Height - m.Width) / 2);
+        //        args.Graphics.DrawImage(i, m);
+        //    };
+
+        //    pd.Print();
+            
+        //}
+
+
         public void Print(Image imgImage)
         {
+
             if (PrinterUtility.GetDefaultPrinters().Cast<ManagementBaseObject>().Any(printer => !printer.IsOnline()))
             {
-                XtraMessageBox.Show(
-                    "Printer is Offline or malfunctioned","Printer status",
+                XtraMessageBox.Show(this,
+                    "Printer is Offline or malfunctioned", "Printer status",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Asterisk);
 
@@ -271,33 +335,36 @@ namespace eXpressPrint
 
             // Prevents execution of below statements if filename is not selected.
             if (imgImage == null)
-            return;
-            
+                return;
+
             try
             {
-                UpdateLabel("Image "+ txtPhotoId.EditValue +".jpg sent to printer.");
+                UpdateLabel("Image " + txtPhotoId.EditValue + ".jpg sent to printer.");
                 UpdatePhotoId();
                 this.BringToFront();
+                this.Focus();
+                formState.Maximize(this);
                 txtPhotoId.Focus();
                  
-                Image printimg = imgImage;
-
-                if (printimg.Width > printimg.Height)
-                   printimg= RotateImage(printimg);
-
                 var pd = new PrintDocument();
 
                 //Disable the printing document pop-up dialog shown during printing.
                 PrintController printController = new StandardPrintController();
                 pd.PrintController = printController;
 
+                printDocument1.PrintController = printController;
 
                 pd.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
                 pd.PrinterSettings.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
 
+
+                if (imgImage.Width > imgImage.Height)
+                    imgImage = RotateImage(imgImage);
+
+
                 pd.PrintPage += (sndr, args) =>
                 {
-                    Image i = printimg;
+                    Image i = imgImage;
 
                     //Adjust the size of the image to the page to print the full image without loosing any part of the image.
                     Rectangle m = args.MarginBounds;
@@ -311,28 +378,138 @@ namespace eXpressPrint
                     {
                         m.Width = (int)((double)i.Width / (double)i.Height * (double)m.Height);
                     }
-                    //Calculating optimal orientation.
-                    
-                    if(m.Width > m.Height)
-                        pd.DefaultPageSettings.Landscape = true;
 
+                    if (imgImage.Width > imgImage.Height)
+                        pd.DefaultPageSettings.Landscape = true;
                     //Putting image in center of page.
                     m.Y = (int)((((System.Drawing.Printing.PrintDocument)(sndr)).DefaultPageSettings.PaperSize.Height - m.Height) / 2);
                     m.X = (int)((((System.Drawing.Printing.PrintDocument)(sndr)).DefaultPageSettings.PaperSize.Width - m.Width) / 2);
                     args.Graphics.DrawImage(i, m);
                 };
+                 
+                pd.Print();
 
-                pd.PrintController = new StandardPrintController();
+            }
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show(this, ex.Message, "Printer error");
+            }
+        }
+
+        public void Printoldcode(Image imgImage)
+        {
+            if (PrinterUtility.GetDefaultPrinters().Cast<ManagementBaseObject>().Any(printer => !printer.IsOnline()))
+            {
+                XtraMessageBox.Show(this,
+                    "Printer is Offline or malfunctioned", "Printer status",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Asterisk);
+
+                return;
+            }
+
+            if (imgImage == null)
+            return;
+            
+            try
+            {
+                UpdateLabel("Image "+ txtPhotoId.EditValue +".jpg sent to printer.");
+                UpdatePhotoId();
+                this.BringToFront();
+                this.Focus();
+                //formState.Maximize(this);
+                txtPhotoId.Focus();
+                   
+                var pd = new PrintDocument();
+
+                PrintController printController = new StandardPrintController();
+                 
+                pd.PrintController = printController;
+                  
+                pd.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+                
+                pd.PrinterSettings.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+
+                
+                pd.PrintPage += (sndr, args) =>
+                { 
+                    if(imgImage.Width > imgImage.Height)
+                        pd.DefaultPageSettings.Landscape = true;
+
+                    GraphicsUnit units = GraphicsUnit.Point;
+
+                    RectangleF bmpRectangleF = imgImage.GetBounds(ref units);
+
+                    args.Graphics.DrawImage(imgImage, bmpRectangleF);
+                };
+
+                //pd.PrintController = new StandardPrintController();
                 pd.Print();
                   
             }
             catch (Exception ex)
             {
-                XtraMessageBox.Show(ex.Message, "Printer error");
+                XtraMessageBox.Show(this,ex.Message, "Printer error");
             }
         }
+         
+        public void PrintNew(Image imgImage)
+        {
+             
+            if (PrinterUtility.GetDefaultPrinters().Cast<ManagementBaseObject>().Any(printer => !printer.IsOnline()))
+            {
+                XtraMessageBox.Show(this,
+                    "Printer is Offline or malfunctioned", "Printer status",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Asterisk);
+
+                return;
+            }
+
+            if (imgImage == null)
+                return;
+
+            try
+            {
+                UpdateLabel("Image " + txtPhotoId.EditValue + ".jpg sent to printer.");
+                UpdatePhotoId();
+                this.BringToFront();
+                this.Focus();
+                //formState.Maximize(this);
+                txtPhotoId.Focus();
+
+                var pd = new PrintDocument();
+
+                PrintController printController = new StandardPrintController();
+
+                pd.PrintController = printController;
+
+                pd.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+
+                pd.PrinterSettings.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
 
 
+                pd.PrintPage += (sndr, args) =>
+                {
+                    if (imgImage.Width > imgImage.Height)
+                        pd.DefaultPageSettings.Landscape = true;
+
+                    GraphicsUnit units = GraphicsUnit.Point;
+
+                    RectangleF bmpRectangleF = imgImage.GetBounds(ref units);
+                     
+                    args.Graphics.DrawImageUnscaled(imgImage,new Point(0,0));
+                };
+
+               // pd.PrintController = new StandardPrintController();
+                pd.Print();
+
+            }
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show(this, ex.Message, "Printer error");
+            }
+        }
         private static Image RotateImage(Image imgIn)
         {
             Image img = imgIn;
@@ -351,7 +528,7 @@ namespace eXpressPrint
             return stream;
         }
 
-        private void UpdateLabel(string message)
+        public void UpdateLabel(string message)
         {
             if (this.lblMessage.InvokeRequired)
             {
@@ -375,5 +552,10 @@ namespace eXpressPrint
             }
         }
         #endregion Print...
+
+        private void printDocument1_PrintPage(object sender, PrintPageEventArgs e)
+        {
+           
+        }
     }
 }

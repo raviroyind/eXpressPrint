@@ -30,11 +30,12 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainerControl1 = new DevExpress.XtraEditors.SplitContainerControl();
+            this.lblMessage = new DevExpress.XtraEditors.LabelControl();
             this.btnClose = new DevExpress.XtraEditors.SimpleButton();
             this.btnSearch = new DevExpress.XtraEditors.SimpleButton();
             this.btnSettings = new DevExpress.XtraEditors.SimpleButton();
             this.txtPhotoId = new DevExpress.XtraEditors.TextEdit();
-            this.lblMessage = new DevExpress.XtraEditors.LabelControl();
+            this.printDocument1 = new System.Drawing.Printing.PrintDocument();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             this.splitContainerControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtPhotoId.Properties)).BeginInit();
@@ -62,6 +63,17 @@
             this.splitContainerControl1.SplitterPosition = 85;
             this.splitContainerControl1.TabIndex = 0;
             this.splitContainerControl1.Text = "splitContainerControl1";
+            // 
+            // lblMessage
+            // 
+            this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblMessage.Appearance.Font = new System.Drawing.Font("Tahoma", 11F);
+            this.lblMessage.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.lblMessage.Location = new System.Drawing.Point(472, 29);
+            this.lblMessage.Name = "lblMessage";
+            this.lblMessage.Size = new System.Drawing.Size(0, 22);
+            this.lblMessage.TabIndex = 5;
             // 
             // btnClose
             // 
@@ -115,16 +127,9 @@
             this.txtPhotoId.Size = new System.Drawing.Size(263, 42);
             this.txtPhotoId.TabIndex = 0;
             // 
-            // lblMessage
+            // printDocument1
             // 
-            this.lblMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblMessage.Appearance.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.lblMessage.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
-            this.lblMessage.Location = new System.Drawing.Point(472, 23);
-            this.lblMessage.Name = "lblMessage";
-            this.lblMessage.Size = new System.Drawing.Size(0, 22);
-            this.lblMessage.TabIndex = 5;
+            this.printDocument1.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.printDocument1_PrintPage);
             // 
             // MainForm
             // 
@@ -159,5 +164,6 @@
         private DevExpress.XtraEditors.SimpleButton btnSearch;
         private DevExpress.XtraEditors.SimpleButton btnClose;
         private DevExpress.XtraEditors.LabelControl lblMessage;
+        private System.Drawing.Printing.PrintDocument printDocument1;
     }
 }

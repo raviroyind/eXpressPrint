@@ -132,7 +132,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.LookAndFeel.SkinName = "Sharp Plus";
             this.LookAndFeel.Style = DevExpress.LookAndFeel.LookAndFeelStyle.UltraFlat;
-            //this.LookAndFeel.TouchUI = true;
+            this.LookAndFeel.TouchUI = true;
             this.LookAndFeel.UseDefaultLookAndFeel = false;
             this.Name = "PrintForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;

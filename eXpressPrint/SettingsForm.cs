@@ -103,6 +103,15 @@ namespace eXpressPrint
                     if (!string.IsNullOrEmpty(inif.Read("DROP_SET", "Drop_Folder")))
                         txtDropBoxFolder.EditValue = inif.Read("DROP_SET", "Drop_Folder");
                 }
+
+                if (!string.IsNullOrEmpty(inif.Read("PRINT_OPT", "AUTO")))
+                {
+                    if (inif.Read("PRINT_OPT", "AUTO").Equals("Y"))
+                        chkAutoPrint.Checked = true;
+                    else
+                        chkAutoPrint.Checked = false;
+                }
+                     
             }
 
 

@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Globalization;
 using System.Linq;
+using System.Management;
 using System.Reflection;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
@@ -15,6 +16,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using DevExpress.XtraSplashScreen;
+using eXpressPrint.Classes;
 
 
 namespace eXpressPrint
@@ -29,13 +31,14 @@ namespace eXpressPrint
         FormState formState = new FormState();
         PictureBox picBoxView;
         Image _PrintImage;
-        public PrintForm(Image img)
+        private string _fileName;
+        public PrintForm(Image img,string fileName)
         {
             InitializeComponent();
 
             _PrintImage = img;
              pictureBox1.Image = img;
-             
+            _fileName = fileName;
         }
 
 
@@ -49,12 +52,7 @@ namespace eXpressPrint
             picBox.Update();
         }
         private void PrintForm_Load(object sender, EventArgs e)
-        {
-            SplashScreenManager.ShowForm(ActiveForm, typeof(WaitForm1), false, false, false);
-            SplashScreenManager.Default.SetWaitFormDescription("Printing...");
-            
-            Thread.Sleep(5000);
-
+        { 
             var inif = new INIFile(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\eXpressPrint\\config.ini");
 
             if (!string.IsNullOrEmpty(inif.Read("PRINT_OPT", "AUTO")))
@@ -66,7 +64,6 @@ namespace eXpressPrint
 
             if (!string.IsNullOrEmpty(inif.Read("PRINT_SET", "COPIES")))
             {
-               
                 var arr = new ArrayList();
                
                 arr.AddRange(inif.Read("PRINT_SET", "COPIES").Split(','));
@@ -79,7 +76,7 @@ namespace eXpressPrint
                 }
 
                 comboBoxNumOfCopies.Items.Insert(0,"--Select--");
-                comboBoxNumOfCopies.SelectedItem = "1";
+                comboBoxNumOfCopies.SelectedIndex = 0;
             }
             
             formState.Maximize(this);
@@ -97,13 +94,12 @@ namespace eXpressPrint
         { 
             Print(_PrintImage);
             Hide();
-            SplashScreenManager.CloseForm(false);
-
+              
             var mainForm = new MainForm();
             mainForm.Show();
             return;
         }
-        public void Print(Image imgImage)
+        public void OLDPrint(Image imgImage)
         {
             // Prevents execution of below statements if filename is not selected.
             if(imgImage == null)
@@ -111,6 +107,12 @@ namespace eXpressPrint
 
             try
             {
+
+                Image printimg = imgImage;
+
+                if (printimg.Width > printimg.Height)
+                    printimg = RotateImage(printimg);
+
                 var pd = new PrintDocument();
 
                 //Disable the printing document pop-up dialog shown during printing.
@@ -123,7 +125,7 @@ namespace eXpressPrint
 
                 pd.PrintPage += (sndr, args) =>
                 {
-                    Image i = imgImage;
+                    Image i = printimg;
 
                     //Adjust the size of the image to the page to print the full image without loosing any part of the image.
                     Rectangle m = args.MarginBounds;
@@ -151,18 +153,111 @@ namespace eXpressPrint
             }
             catch (Exception ex)
             {
-                XtraMessageBox.Show(ex.Message,"Printer error");
+                XtraMessageBox.Show(this,ex.Message,"Printer error");
             }
+        }
+
+        public void Print(Image imgImage)
+        {
+
+            if (PrinterUtility.GetDefaultPrinters().Cast<ManagementBaseObject>().Any(printer => !printer.IsOnline()))
+            {
+                XtraMessageBox.Show(this,
+                    "Printer is Offline or malfunctioned", "Printer status",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Asterisk);
+
+                return;
+            }
+
+            // Prevents execution of below statements if filename is not selected.
+            if (imgImage == null)
+                return;
+
+            try
+            { 
+                var pd = new PrintDocument();
+
+                //Disable the printing document pop-up dialog shown during printing.
+                PrintController printController = new StandardPrintController();
+                pd.PrintController = printController;
+
+
+                pd.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+                pd.PrinterSettings.DefaultPageSettings.Margins = new Margins(0, 0, 0, 0);
+
+
+                if (imgImage.Width > imgImage.Height)
+                    imgImage = RotateImage(imgImage);
+
+
+                pd.PrintPage += (sndr, args) =>
+                {
+                    Image i = imgImage;
+
+                    //Adjust the size of the image to the page to print the full image without loosing any part of the image.
+                    Rectangle m = args.MarginBounds;
+
+                    //Logic below maintains Aspect Ratio.
+                    if ((double)i.Width / (double)i.Height > (double)m.Width / (double)m.Height) // image is wider
+                    {
+                        m.Height = (int)((double)i.Height / (double)i.Width * (double)m.Width);
+                    }
+                    else
+                    {
+                        m.Width = (int)((double)i.Width / (double)i.Height * (double)m.Height);
+                    }
+
+                    if (imgImage.Width > imgImage.Height)
+                        pd.DefaultPageSettings.Landscape = true;
+                    //Putting image in center of page.
+                    m.Y = (int)((((System.Drawing.Printing.PrintDocument)(sndr)).DefaultPageSettings.PaperSize.Height - m.Height) / 2);
+                    m.X = (int)((((System.Drawing.Printing.PrintDocument)(sndr)).DefaultPageSettings.PaperSize.Width - m.Width) / 2);
+                    args.Graphics.DrawImage(i, m);
+                };
+
+                pd.Print();
+
+            }
+            catch (Exception ex)
+            {
+                XtraMessageBox.Show(this, ex.Message, "Printer error");
+            }
+        }
+
+
+        private static Image RotateImage(Image imgIn)
+        {
+            Image img = imgIn;
+            //create an object that we can use to examine an image file
+            //rotate the picture by 90 degrees and re-save the picture as a Jpeg
+            img.RotateFlip(RotateFlipType.Rotate90FlipNone);
+
+            return img;
         }
 
         private void btnPrint_Click(object sender, EventArgs e)
         {
-            if (comboBoxNumOfCopies.SelectedIndex == 0)
+            if (comboBoxNumOfCopies.SelectedIndex == 0 || comboBoxNumOfCopies.SelectedIndex==-1)
             {
-                MessageBox.Show(this, "Please select number of copies.", "Print Settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                XtraMessageBox.Show(this,
+                    "Please select number of copies.", "Print Settings",
+                   MessageBoxButtons.OK,
+                   MessageBoxIcon.Asterisk);
+                   //MessageBox.Show(this, "Please select number of copies.", "Print Settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
+
+            if (PrinterUtility.GetDefaultPrinters().Cast<ManagementBaseObject>().Any(printer => !printer.IsOnline()))
+            {
+                XtraMessageBox.Show(this,
+                    "Printer is Offline or malfunctioned", "Printer status",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Asterisk);
+
+                return;
+            }
 
             var copies = Convert.ToInt32(comboBoxNumOfCopies.SelectedItem);
             for (var i = 0; i <= copies-1; i++)
@@ -172,6 +267,7 @@ namespace eXpressPrint
             
             Hide();
             var mainForm=new MainForm();
+            mainForm.UpdateLabel("Image " + _fileName + ".jpg sent to printer.");
             mainForm.Show();
         }
 
