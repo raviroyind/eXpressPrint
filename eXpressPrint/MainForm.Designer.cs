@@ -35,7 +35,8 @@
             this.btnSearch = new DevExpress.XtraEditors.SimpleButton();
             this.btnSettings = new DevExpress.XtraEditors.SimpleButton();
             this.txtPhotoId = new DevExpress.XtraEditors.TextEdit();
-            this.printDocument1 = new System.Drawing.Printing.PrintDocument();
+            this.printDocumentImg = new System.Drawing.Printing.PrintDocument();
+            this.printDocumentPotraitImg = new System.Drawing.Printing.PrintDocument();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerControl1)).BeginInit();
             this.splitContainerControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtPhotoId.Properties)).BeginInit();
@@ -127,9 +128,13 @@
             this.txtPhotoId.Size = new System.Drawing.Size(263, 42);
             this.txtPhotoId.TabIndex = 0;
             // 
-            // printDocument1
+            // printDocumentImg
             // 
-            this.printDocument1.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.printDocument1_PrintPage);
+            this.printDocumentImg.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.printDocumentImg_PrintPage);
+            // 
+            // printDocumentPotraitImg
+            // 
+            this.printDocumentPotraitImg.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.printDocumentPotraitImg_PrintPage);
             // 
             // MainForm
             // 
@@ -164,6 +169,7 @@
         private DevExpress.XtraEditors.SimpleButton btnSearch;
         private DevExpress.XtraEditors.SimpleButton btnClose;
         private DevExpress.XtraEditors.LabelControl lblMessage;
-        private System.Drawing.Printing.PrintDocument printDocument1;
+        private System.Drawing.Printing.PrintDocument printDocumentImg;
+        private System.Drawing.Printing.PrintDocument printDocumentPotraitImg;
     }
 }

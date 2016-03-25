@@ -36,7 +36,8 @@
             this.lblNumberOfCopies = new DevExpress.XtraEditors.LabelControl();
             this.btnBack = new DevExpress.XtraEditors.SimpleButton();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.printDocument1 = new System.Drawing.Printing.PrintDocument();
+            this.printDocumentImg = new System.Drawing.Printing.PrintDocument();
+            this.printDocumentPotraitImg = new System.Drawing.Printing.PrintDocument();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerPrint)).BeginInit();
             this.splitContainerPrint.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtNumberOfCopies.Properties)).BeginInit();
@@ -122,6 +123,14 @@
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
             // 
+            // printDocumentImg
+            // 
+            this.printDocumentImg.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.printDocumentImg_PrintPage);
+            // 
+            // printDocumentPotraitImg
+            // 
+            this.printDocumentPotraitImg.PrintPage += new System.Drawing.Printing.PrintPageEventHandler(this.printDocumentPotraitImg_PrintPage);
+            // 
             // PrintForm
             // 
             this.AcceptButton = this.btnPrint;
@@ -155,8 +164,9 @@
         private DevExpress.XtraEditors.SimpleButton btnPrint;
         private DevExpress.XtraEditors.TextEdit txtNumberOfCopies;
         private DevExpress.XtraEditors.LabelControl lblNumberOfCopies;
-        private System.Drawing.Printing.PrintDocument printDocument1;
         private System.Windows.Forms.ComboBox comboBoxNumOfCopies;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Drawing.Printing.PrintDocument printDocumentImg;
+        private System.Drawing.Printing.PrintDocument printDocumentPotraitImg;
     }
 }
